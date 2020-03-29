@@ -111,4 +111,53 @@ public class PN532 {
 		return uidLength;
 	}
 
+	public int readDataPacket(byte cardbaudrate, byte[] buffer) throws InterruptedException {
+		byte[] command = new byte[3];
+		command[0] = PN532_COMMAND_INLISTPASSIVETARGET;
+		command[1] = 1; // max 1 cards at once (we can set this to 2 later)
+		command[2] = (byte) cardbaudrate;
+
+		if (medium.writeCommand(command) != CommandStatus.OK) {
+			return -1; // command failed
+		}
+
+		// read data packet
+		if (medium.readResponse(pn532_packetbuffer, pn532_packetbuffer.length) < 0) {
+//		if (medium.readResponse(pn532_packetbuffer, 20) < 0) {
+			return -1;
+		}
+
+		// check some basic stuff
+		/*
+		 * ISO14443A card response should be in the following format:
+		 *
+		 * byte Description -------------
+		 * ------------------------------------------ b0 Tags Found b1 Tag
+		 * Number (only one used in this example) b2..3 SENS_RES b4 SEL_RES b5
+		 * NFCID Length b6..NFCIDLen NFCID
+		 */
+
+		int offset = 0; //medium.getOffsetBytes();
+
+		if (pn532_packetbuffer[offset + 0] != 1) {
+			return -1;
+		}
+		// int sens_res = pn532_packetbuffer[2];
+		// sens_res <<= 8;
+		// sens_res |= pn532_packetbuffer[3];
+
+		// DMSG("ATQA: 0x"); DMSG_HEX(sens_res);
+		// DMSG("SAK: 0x"); DMSG_HEX(pn532_packetbuffer[4]);
+		// DMSG("\n");
+
+		/* Card appears to be Mifare Classic */
+		int uidLength = pn532_packetbuffer[offset + 5];
+
+		for (int i = 0; i < uidLength; i++) {
+			buffer[i] = pn532_packetbuffer[offset + 6 + i];
+		}
+
+		return uidLength;
+	}
+
 }

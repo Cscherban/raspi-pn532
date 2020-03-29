@@ -127,7 +127,7 @@ public class PN532I2C implements IPN532Interface {
           return CommandStatus.TIMEOUT;
         }
       }
-      Gpio.delay(10);
+      Thread.sleep(10);
 
     }
 
@@ -176,7 +176,7 @@ public class PN532I2C implements IPN532Interface {
           return -1;
         }
       }
-      Gpio.delay(10);
+      Thread.sleep(10);
 
     }
 

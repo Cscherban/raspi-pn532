@@ -32,21 +32,24 @@ public class Main {
 
 		System.out.println("Waiting for an ISO14443A Card ...");
 
-		byte[] buffer = new byte[8];
+		byte[] buffer = new byte[64];
 		while (true) {
-			int readLength = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A,
+			int readLength = nfc.readDataPacket(PN532_MIFARE_ISO14443A,
 					buffer);
 
 			if (readLength > 0) {
-				System.out.println("Found an ISO14443A card");
+				System.out.println("Found a card");
 
-				System.out.print("  UID Length: ");
+				System.out.print("  Data Length ");
 				System.out.print(readLength);
 				System.out.println(" bytes");
 
 				System.out.print("  UID Value: [");
 				for (int i = 0; i < readLength; i++) {
 					System.out.print(Integer.toHexString(buffer[i]));
+				}
+				for (int i = 0; i < readLength; i++){
+					System.out.print((char)(buffer[i]));
 				}
 				System.out.println("]");
 			}
